@@ -1,26 +1,60 @@
 #%%
-#키오스크
-window_width = 40
-store_name = input("   안녕하세요 업주님😎\n     여기에 업소명을 입력해주세요!: ").strip()
-welcome_message = f"반갑습니다 고객님!\n      행복을 드리는 {store_name}입니다💕"
-print("-" * window_width)
-print(welcome_message.center(window_width))
-print("-" * window_width)
+# 키오스크
+# 1. 초기 데이터 및 메시지 설정
+PRICE_DICT = {'아메리카노': 2000, '라떼': 2500, '주스': 3000}
+INVENTORY_DICT = {'아메리카노': 10, '라떼': 5, '주스': 7}
+MENU_NAMES = list(PRICE_DICT.keys())
+SALES = 0
 
-customer_name = input("상품이 준비되면 저희 스태프가 고객님의 성함을 불러드립니다🔊\n 성함을 입력해주세요!(닉네임 가능): ").strip()
-print(f"{customer_name} 님이군요?!\n 기억할게요👌")
+MSG_ENTER = "* 엔터를 누르면 장바구니로 이동합니다."
+MSG_INPUT_MENU = "주문할 메뉴 번호 입력 >> "
+MSG_INPUT_COUNT = "수량 입력 >> "
 
-menu_name = input("📌주문할 메뉴를 선택해주세요!: ").strip()
-size = input("📌사이즈를 선택해주세요!\n (저희는 middle, big, ultra 세 사이즈가 있어요!: ").strip()
-quantity = int(input("📌상품의 갯수를 골라주세요!\n (현재 +1 행사중입니다!: "))
+# 2. 키오스크 전체 메인 루프 (재고가 1개라도 남아있는 동안 실행)
+while sum(INVENTORY_DICT.values()) > 0:
+    print("\n안녕하세요! 카페입니다.")
+    print("=== 메뉴판 ===")
+    for i, menu in enumerate(MENU_NAMES):
+        print(f"{i+1}. {menu} : {PRICE_DICT[menu]}원 (재고: {INVENTORY_DICT[menu]}개)")
 
-event_quantity = quantity + 1
+    # 손님별 장바구니 생성
+    cart = {menu: 0 for menu in MENU_NAMES}
 
-print(f"{customer_name} 님!\n주문이 완료되었습니다🎉")
-print(f"{customer_name} 님의 주문 내역은 아래와 같습니다.")
-print(f"{menu_name}의 {size}사이즈를 {quantity}개 주문하셨습니다.")
-print(f"현재 +1 행사 중이라 {menu_name}의 {size}사이즈를 {event_quantity}개 준비하겠습니다.")
-print("편하신 곳에서 잠시만 기다려주세요⌛")
+    # 3. 주문 입력 루프
+    while True:
+        print(MSG_ENTER)
+        menu_num = input(MSG_INPUT_MENU)
+
+        # 엔터 입력 시 주문 선택 종료 -> 결제/처리 단계로 이동
+        if menu_num == "":
+            break
+
+        # 숫자 변환 및 인덱스 계산
+        menu_idx = int(menu_num) - 1
+        selected_menu = MENU_NAMES[menu_idx]
+
+        # 수량 입력 루프
+        while True:
+            count = int(input(MSG_INPUT_COUNT))
+            if count <= INVENTORY_DICT[selected_menu]:
+                cart[selected_menu] += count
+                break
+            else:
+                print("재고가 부족합니다. 다시 입력해 주세요.")
+
+    # 4. 주문 처리 및 재고/매출 업데이트
+    print("\n[주문 접수 중...]")
+    for menu in MENU_NAMES:
+        order_qty = cart[menu]
+        INVENTORY_DICT[menu] -= order_qty
+        SALES += order_qty * PRICE_DICT[menu]
+
+    print("주문이 성공적으로 완료되었습니다!")
+    del cart  # 장바구니 초기화/삭제
+
+# 5. 영업 종료
+print("\n모든 재고가 소진되어 영업을 종료합니다.")
+print(f"오늘의 총 매출: {SALES}원")
 
 #%%
 #사전
